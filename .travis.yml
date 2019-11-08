@@ -1,30 +1,55 @@
-language: cpp
+language: minimal
 
 dist: xenial
 sudo: required
 
-os:
-  - linux
-  - osx
-
-compiler:
-  - clang
-  - gcc
-
 env:
-  - WIRESHARK_BRANCH=master-2.6 PLUGIN_DIR=$TRAVIS_BUILD_DIR BUILD_STANDALONE=no
-  - WIRESHARK_BRANCH=master-2.6 PLUGIN_DIR=$TRAVIS_BUILD_DIR BUILD_STANDALONE=yes
+  - WIRESHARK_BRANCH=master-2.6 PLUGIN_DIR=$TRAVIS_BUILD_DIR
 
 matrix:
-  exclude:
-    # Exclude gcc build on OSX
-    - os: osx
-      compiler: gcc
-    # Exclude standalone build on OSX
-    - os: osx
-      env: WIRESHARK_BRANCH=master-2.6 PLUGIN_DIR=$TRAVIS_BUILD_DIR BUILD_STANDALONE=yes
-  allow_failures:
-    - os: osx
+  include:
+    - name: Linux (gcc-8) standalone
+      os: linux
+      env:
+        - CXX=g++-8
+        - CC=gcc-8
+        - BUILD_STANDALONE=yes
+      addons:
+        apt:
+          update: true
+          sources:
+            - ubuntu-toolchain-r-test
+          packages: g++-8
+    - name: Linux (gcc-8)
+      os: linux
+      env:
+        - CXX=g++-8
+        - CC=gcc-8
+        - BUILD_STANDALONE=no
+      addons:
+        apt:
+          update: true
+          sources:
+            - ubuntu-toolchain-r-test
+          packages: g++-8
+    - name: Linux (clang) standalone
+      os: linux
+      env:
+        - CXX=clang++
+        - CC=clang
+        - BUILD_STANDALONE=yes
+    - name: Linux (clang)
+      os: linux
+      env:
+        - CXX=clang++
+        - CC=clang
+        - BUILD_STANDALONE=no
+    - name: OSX (xcode10.3 clang)
+      os: osx
+      osx_image: xcode10.3
+      compiler: clang
+      env:
+        - BUILD_STANDALONE=no
 
 before_install:
   - echo $TRAVIS_OS_NAME
